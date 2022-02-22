@@ -22,6 +22,38 @@
     let containerElement = document.body.querySelector('.container');
 
     containerElement.append(carousel.elem);
+    let slidesContainer = containerElement.querySelector('.carousel__inner');
+
+    let position = 0; // положение ленты прокрутки
+    let currentSlide = 0; // номер текущего слайда
+    let last = slidesContainer.querySelectorAll('.carousel__slide').length - 1; //номер последнего слайда
+    let left = containerElement.querySelector('.carousel__arrow.carousel__arrow_left');  //кнопка влево
+    left.style.display = 'none';
+    
+    const inLeft = () => {
+      // сдвиг влево
+      position += document.querySelector('.carousel__img').width;
+      if (currentSlide > 0) currentSlide -= 1;
+      slidesContainer.style.transform = 'translateX(' + position + 'px)';
+      if (currentSlide == 0) left.style.display = 'none';
+      if (currentSlide < last) right.style.display = '';
+    };
+    
+    left.addEventListener('click', inLeft);
+    
+    let right = containerElement.querySelector('.carousel__arrow.carousel__arrow_right'); //кнопка вправо
+    
+    const inRight = () => {
+      //сдевиг вправо
+      position -= document.querySelector('.carousel__img').width;
+      if (currentSlide < last) currentSlide += 1;
+      slidesContainer.style.transform = 'translateX(' + position + 'px)';
+      if (currentSlide > 0) left.style.display = '';
+      if (currentSlide == last) right.style.display = 'none';
+    };
+    
+    right.addEventListener('click', inRight);
+
   </script>
   </body>
 
