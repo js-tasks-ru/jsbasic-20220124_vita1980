@@ -5,14 +5,16 @@ export default class Modal {
   #body;
 
   constructor() {
+    this.modal = createElement(this.render());
   }
 
   setTitle(title) {
-    this.#title = title;
+    this.modal.querySelector('.modal__title').textContent = title;
   }
 
   setBody(body) {
-    this.#body = body;
+    this.modal.querySelector('.modal__body').innerHTML = '';
+    this.modal.querySelector('.modal__body').append(body);
   }
 
   #onClose = (e) => {
@@ -22,20 +24,18 @@ export default class Modal {
   }
 
   open() {
-    const modal = createElement(this.render());
-
     if (this.#body instanceof Node) {
-      modal.querySelector('.modal__body').appendChild(this.#body);
+      this.modal.querySelector('.modal__body').appendChild(this.#body);
     }
 
-    document.body.appendChild(modal);
+    document.body.appendChild(this.modal);
     document.body.classList.add('is-modal-open');
-    modal.querySelector('.modal__close').addEventListener('click', () => this.close());
+    this.modal.querySelector('.modal__close').addEventListener('click', () => this.close());
     document.body.addEventListener('keydown', this.#onClose);
   }
 
   close() {
-    document.body.querySelector('.modal').remove();
+    this.modal.remove();
     document.body.classList.remove('is-modal-open');
     document.body.removeEventListener('keydown', this.#onClose);
   }
