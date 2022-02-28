@@ -26,7 +26,7 @@ export default class CartIcon {
       this.elem.classList.add('shake');
       this.elem.addEventListener('transitionend', () => {
         this.elem.classList.remove('shake');
-      }, {once: true});
+      }, { once: true });
 
     } else {
       this.elem.classList.remove('cart-icon_visible');
@@ -39,6 +39,37 @@ export default class CartIcon {
   }
 
   updatePosition() {
-    // ваш код ...
+    if (!this.elem.offsetHeight)
+      return;
+
+    if (!this.top)
+      this.top = this.elem.getBoundingClientRect().top + window.pageYOffset;
+
+    if (document.documentElement.clientWidth <= 767) {
+      this.elem.style.position = '';
+      this.elem.style.top = '';
+      this.elem.style.left = '';
+      this.elem.style.zIndex = '';
+
+      return;
+    };
+
+
+    if (window.pageYOffset > this.top) {
+      this.elem.style.position = 'fixed';
+      this.elem.style.top = '50px';
+      this.elem.style.zIndex = 100;
+      this.elem.style.left = Math.min(
+        document.querySelector('.container').getBoundingClientRect().right + 20,
+        document.documentElement.clientWidth - this.elem.offsetWidth - 10
+      ) + 'px';
+    }
+    else {
+      this.elem.style.position = '';
+      this.elem.style.top = '';
+      this.elem.style.left = '';
+      this.elem.style.zIndex = '';
+    }
   }
 }
+
