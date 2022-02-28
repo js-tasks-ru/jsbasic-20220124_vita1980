@@ -1,68 +1,93 @@
 import createElement from '../../assets/lib/create-element.js';
 
 export default class Carousel {
-  #elem;
-  #slides;
-
   constructor(slides) {
-    this.#slides = slides;
-    this.#elem = this.makeDOM(slides);
-    this.initCarousel(this.#elem);
+    this.slides = slides;
+    this.elem = this.render();
   }
 
-  get elem() {
-    return this.#elem;
-  }
 
-  get slides() {
-    return this.#slides;
-  }
+  render() {
 
-  makeHTML(slides) {
-    let str = `<div class="carousel">
-    <div class="carousel__arrow carousel__arrow_right">
-      <img src="/assets/images/icons/angle-icon.svg" alt="icon">
-    </div>
-    <div class="carousel__arrow carousel__arrow_left">
-      <img src="/assets/images/icons/angle-left-icon.svg" alt="icon">
-    </div>
-    <div class="carousel__inner">`;
+    this.carousel = createElement(
+      `<div class="carousel">
+				<div class="carousel__arrow carousel__arrow_right">
+					<img src="/assets/images/icons/angle-icon.svg" alt="icon">
+				</div>
+				
+				<div class="carousel__arrow carousel__arrow_left">
+					<img src="/assets/images/icons/angle-left-icon.svg" alt="icon">
+				</div>
+				<div class="carousel__inner"></div>
+			</div>`
+    );
 
-    for (let slide of slides) {
-      str = str +
-        `<div class="carousel__slide" data-id="${slide.id}">
-          <img src="/assets/images/carousel/${slide.image}" class="carousel__img" alt="slide">
-          <div class="carousel__caption">
-            <span class="carousel__price">€${slide.price.toFixed(2)}</span>
-            <div class="carousel__title">${slide.name}</div>
-              <button type="button" class="carousel__button">
-                  <img src="/assets/images/icons/plus-icon.svg" alt="icon">
-              </button>
-          </div>
-        </div>`;
+    this.carouselInner = this.carousel.querySelector('.carousel__inner');
+
+    for (let i = 0; i < this.slides.length; i++) {
+      this.carouselInner.insertAdjacentHTML('beforeEnd',
+        `<div class="carousel__slide" data-id=${this.slides[i].id}>
+					<img src="/assets/images/carousel/${this.slides[i].image}" class="carousel__img" alt="slide">
+					<div class="carousel__caption">
+						<span class="carousel__price">€${this.slides[i].price.toFixed(2)}</span>
+						<div class="carousel__title">${this.slides[i].name}</div>
+						<button type="button" class="carousel__button">
+							<img src="/assets/images/icons/plus-icon.svg" alt="icon">
+						</button>
+					</div>
+				</div>`);
     }
-    str = str + `</div></div>`;
-    return str;
-  }
 
-  makeDOM(slides) {
-    let dom = createElement(this.makeHTML(slides));
-    let buttons = dom.querySelectorAll(".carousel__button");
-    for (let i = 0; i < slides.length; i++) {
-      buttons[i].addEventListener('click', (e) => this.makeEvent(slides[i], e.target));
+    this.buttons = this.carouselInner.querySelectorAll('.carousel__button');
+
+    for (let btn of this.buttons) {
+      btn.addEventListener('click', (event) => {
+
+        let productAddEvent = new CustomEvent("product-add", {
+          detail: event.target.closest('.carousel__slide').getAttribute('data-id'),
+          bubbles: true
+        });
+
+        this.carousel.dispatchEvent(productAddEvent);
+      });
     }
-    return dom;
-  }
 
-  makeEvent(slide, button) {
-    let event = new CustomEvent("product-add", {
-      detail: slide.id,
-      bubbles: true,
+    this.btnRight = this.carousel.querySelector('.carousel__arrow_right');
+    this.btnLeft = this.carousel.querySelector('.carousel__arrow_left');
+    this.translateX = 0;
+    this.btnLeft.style.display = 'none';
+
+
+    this.btnRight.addEventListener("click", () => {
+      this.carouselInnerWidth = this.carouselInner.offsetWidth;
+
+      this.translateX -= this.carouselInnerWidth;
+      this.carouselInner.style.transform = `translateX(${this.translateX}px)`;
+
+      if (this.translateX < 0) {
+        this.btnLeft.style.display = '';
+      }
+
+      if (this.translateX === -this.carouselInnerWidth * (this.slides.length - 1)) {
+        this.btnRight.style.display = 'none';
+      }
     });
-    button.dispatchEvent(event);
-  }
 
-  initCarousel(carousel) {
+    this.btnLeft.addEventListener("click", () => {
+      this.carouselInnerWidth = this.carouselInner.offsetWidth;
 
+      this.translateX += this.carouselInnerWidth;
+      this.carouselInner.style.transform = `translateX(${this.translateX}px)`;
+
+      if (this.translateX > -this.carouselInnerWidth * (this.slides.length - 1)) {
+        this.btnRight.style.display = '';
+      }
+
+      if (this.translateX === 0) {
+        this.btnLeft.style.display = 'none';
+      }
+    });
+
+    return this.carousel;
   }
 }
